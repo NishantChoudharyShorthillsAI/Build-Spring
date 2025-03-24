@@ -32,36 +32,25 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "target/demo-0.0.1-SNAPSHOT.jar"
-          target: "/home/ubuntu/app/"
+          target: "/home/ubuntu/app/target/"
           overwrite: true
           strip_components: 0
 
-      - name: Deploy JAR on EC2
+      - name: Run JAR on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo mkdir -p /home/ubuntu/app
-            sudo chmod 777 /home/ubuntu/app
-            
-            # Verify JAR exists
-            if [ ! -f "/home/ubuntu/app/demo-0.0.1-SNAPSHOT.jar" ]; then
-              echo "❌ JAR file not found on EC2!"
-              exit 1
-            fi
-            
-            # Move and rename JAR
-            sudo mv /home/ubuntu/app/demo-0.0.1-SNAPSHOT.jar /home/ubuntu/app/app.jar
-            sudo chmod +x /home/ubuntu/app/app.jar
+            sudo chmod +x /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar
             
             # Kill old process running on port 80 if any
             sudo fuser -k 80/tcp || true
             
-            # Start new process
-            nohup java -jar /home/ubuntu/app/app.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
-
+            # Run the JAR file
+            nohup sudo java -jar /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
+            
             # Wait for the app to start
             sleep 15
 
