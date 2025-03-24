@@ -22,7 +22,7 @@ jobs:
       - name: Build JAR with Maven
         run: |
           mvn clean install
-          mvn clean package -DskipTests
+          mvn package -DskipTests
 
       - name: Copy JAR to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -34,20 +34,6 @@ jobs:
           target: "/home/ubuntu/app/"
           overwrite: true
           strip_components: 0
-
-      - name: Verify JAR Exists on EC2
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            if [ -f "/home/ubuntu/app/demo-0.0.1-SNAPSHOT.jar" ]; then
-              echo "✅ JAR file successfully transferred."
-            else
-              echo "❌ JAR file not found on EC2. SCP may have failed."
-              exit 1
-            fi
 
       - name: Deploy JAR on EC2
         uses: appleboy/ssh-action@v0.1.7
@@ -67,7 +53,7 @@ jobs:
             
             # Start new process
             nohup java -jar /home/ubuntu/app/app.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
-
+            
             # Verify the app is running
             sleep 10
             if curl -I http://localhost:80; then
