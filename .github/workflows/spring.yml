@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "target/demo-0.0.1-SNAPSHOT.jar"
-          target: "/home/ubuntu/app/"
+          target: "/home/ubuntu/app/target/"
           overwrite: true
           strip_components: 0
 
@@ -42,20 +42,29 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo mkdir -p /home/ubuntu/app
-            sudo chmod 777 /home/ubuntu/app
+            sudo mkdir -p /home/ubuntu/app/target
+            sudo chmod 777 /home/ubuntu/app/target
+            
+            # Ensure JAR file exists
+            if [ ! -f "/home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar" ]; then
+              echo "❌ JAR file not found on EC2."
+              exit 1
+            fi
             
             # Move and rename JAR
-            sudo mv /home/ubuntu/app/demo-0.0.1-SNAPSHOT.jar /home/ubuntu/app/app.jar
+            sudo mv /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar /home/ubuntu/app/app.jar
+            sudo chmod +x /home/ubuntu/app/app.jar
             
-            # Kill old process
+            # Kill old process running on port 80 if any
             sudo fuser -k 80/tcp || true
             
             # Start new process
             nohup java -jar /home/ubuntu/app/app.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
-            
-            # Verify the app is running
-            sleep 10
+
+            # Wait for the app to start
+            sleep 15
+
+            # Check if the application is running
             if curl -I http://localhost:80; then
               echo "✅ Application deployed successfully!"
             else
