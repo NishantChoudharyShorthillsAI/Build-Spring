@@ -53,7 +53,6 @@ jobs:
           source: "target/demo-0.0.1-SNAPSHOT.jar"
           target: "/home/ubuntu/app/"
           overwrite: true
-          strip_components: 0
 
       - name: Run JAR on EC2
         uses: appleboy/ssh-action@v0.1.7
@@ -67,9 +66,6 @@ jobs:
             
             # Give execution permissions
             sudo chmod +x /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar
-            
-            # Kill any process running on port 80
-            sudo fuser -k 80/tcp || true
             
             # Run the JAR file
             nohup sudo java -jar /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
