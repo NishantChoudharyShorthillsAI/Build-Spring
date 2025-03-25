@@ -66,13 +66,13 @@ jobs:
             sudo mkdir -p /home/ubuntu/app/
             
             # Give execution permissions
-            sudo chmod +x /home/ubuntu/app/demo-0.0.1-SNAPSHOT.jar
+            sudo chmod +x /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar
             
             # Kill any process running on port 80
             sudo fuser -k 80/tcp || true
             
             # Run the JAR file
-            nohup sudo java -jar /home/ubuntu/app/demo-0.0.1-SNAPSHOT.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
+            nohup sudo java -jar /home/ubuntu/app/target/demo-0.0.1-SNAPSHOT.jar --server.port=80 > /home/ubuntu/app/app.log 2>&1 &
             
             # Wait for the app to start
             sleep 15
