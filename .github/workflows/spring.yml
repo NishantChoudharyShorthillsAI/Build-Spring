@@ -26,6 +26,12 @@ jobs:
           mvn clean install
           ls -lah target/  # Verify JAR exists
           
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-jar
+          path: target/demo-0.0.1-SNAPSHOT.jar
+          
   cd:
     name: Deploy to EC2
     runs-on: ubuntu-latest
