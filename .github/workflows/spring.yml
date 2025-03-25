@@ -23,6 +23,7 @@ jobs:
       - name: Build JAR with Maven
         run: |
           mvn clean package
+          mvn clean install
           ls -lah target/  # Verify JAR exists
 
       - name: Upload Artifact
